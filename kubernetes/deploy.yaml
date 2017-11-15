@@ -1,0 +1,46 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: image-analysis
+  name: image-analysis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: image-analysis
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  revisionHistoryLimit: 5
+  template:
+    metadata:
+      labels:
+        app: image-analysis
+    spec:
+      containers:
+      - image: beaware/image-analysis:IMAGE_TAG
+        imagePullPolicy: Always
+        name: image-analysis
+        ports:
+        - containerPort: 9999
+          name: http
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 200m
+            memory: 500Mi
+        env:
+          - name: SECRET_MH_API_KEY
+            valueFrom:
+             secretKeyRef:
+              name: mh-secret2
+              key: api_key
+          - name: SECRET_MH_BROKERS
+            valueFrom:
+             secretKeyRef:
+              name: mh-secret2
+              key: kafka_brokers_sasl
+            
