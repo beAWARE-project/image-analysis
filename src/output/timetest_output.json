@@ -1,0 +1,49 @@
+{
+ "image": {
+  "name": "Floods.2016.CyToloxWQAEgZ52",
+  "target": [
+   {
+    "width": 201,
+    "height": 466,
+    "left": 21,
+    "top": 225,
+    "confidence": 0.999,
+    "type": "person"
+   },
+   {
+    "width": 191,
+    "height": 104,
+    "left": 201,
+    "top": 338,
+    "confidence": 0.891,
+    "type": "car"
+   },
+   {
+    "width": 42,
+    "height": 62,
+    "left": 795,
+    "top": 313,
+    "confidence": 0.818,
+    "type": "person"
+   },
+   {
+    "width": 54,
+    "height": 72,
+    "left": 668,
+    "top": 322,
+    "confidence": 0.763,
+    "type": "person"
+   },
+   {
+    "width": 305,
+    "height": 128,
+    "left": 288,
+    "top": 456,
+    "confidence": 0.631,
+    "type": "motorcycle"
+   }
+  ],
+  "width": 1200,
+  "height": 900
+ }
+}
