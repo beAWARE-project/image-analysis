@@ -37,7 +37,22 @@ download_from_storage(image_url)
 bimg_output = open('./output/timetest_output.jpg', 'rb')
 bjson_output = open('./output/timetest_output.json', 'rb')
 save_to_storage(bimg_output, 'timetest_output.jpg')
-#save_to_storage(bjson_output, 'timetest_output.json')
+save_to_storage(bjson_output, 'timetest_output.json')
 end = time.time()
 runtime = end-start
 print("Download & Upload complete. Runtime: {0}".format(runtime))
+
+time.sleep(10)
+print("Second print")
+
+time.sleep(10)
+print("Third print")
+
+time.sleep(10)
+print("Fourth print")
+
+time.sleep(10)
+print("Fifth print")
+
+time.sleep(10)
+print("Sixth print")
