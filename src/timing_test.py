@@ -6,7 +6,7 @@ import io
 import os
 import numpy as np
 import skvideo.io
-#import requests
+import requests
 
 HOST = ''   # Symbolic name meaning all available interfaces
 PORT = 9999 # Arbitrary non-privileged port
@@ -25,11 +25,11 @@ def download_from_storage(image_url):
     to_write.save('./output/timetest_output.jpg')
     return
 
-# def save_to_storage(bobj, filename):
-#     #Upload to storage
-#     r = requests.post(storage_link+filename, bobj)
-#     if not r.ok:
-#         print('Didn\'t happen')
+def save_to_storage(bobj, filename):
+    #Upload to storage
+    r = requests.post(storage_link+filename, bobj)
+    if not r.ok:
+        print('Didn\'t happen')
 
 
 start = time.time()
