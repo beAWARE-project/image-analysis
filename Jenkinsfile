@@ -23,7 +23,7 @@ node ('beaware-jenkins-slave') {
 
     stage ('Print-deploy logs') {
         sh 'sleep 15'
-        sh 'kubectl  -n prod logs deploy/image-analysis -c image-analysis'
+        sh 'kubectl -f -n prod logs deploy/image-analysis -c image-analysis'
     }
 		
 }
