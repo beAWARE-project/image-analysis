@@ -36,7 +36,7 @@ start = time.time()
 download_from_storage(image_url)
 bimg_output = open('./output/timetest_output.jpg', 'rb')
 bjson_output = open('./output/timetest_output.json', 'rb')
-#save_to_storage(bimg_output, 'timetest_output.jpg')
+save_to_storage(bimg_output, 'timetest_output.jpg')
 #save_to_storage(bjson_output, 'timetest_output.json')
 end = time.time()
 runtime = end-start
