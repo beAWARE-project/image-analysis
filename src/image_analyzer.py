@@ -45,6 +45,9 @@ label_map = label_map_util.load_labelmap(PATH_TO_LABELS)
 categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES, use_display_name=True)
 category_index = label_map_util.create_category_index(categories)
 
+with detection_graph.as_default():
+    sess =  tf.Session(graph=detection_graph)
+
 print('Analyzer imported')
 
 #PARAMETERS
@@ -63,61 +66,59 @@ def analyze(img_np, file_name):
     write_on = frame_np.copy()
     height = frame_np.shape[0]
     width = frame_np.shape[1]
-    with detection_graph.as_default():
-        with tf.Session(graph=detection_graph) as sess:
-            # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
-            frame_np_expanded = np.expand_dims(frame_np, axis=0)
-            image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
-            # Each box represents a part of the image where a particular object was detected.
-            boxes = detection_graph.get_tensor_by_name('detection_boxes:0')
-            # Each score represent how level of confidence for each of the objects.
-            # Score is shown on the result image, together with the class label.
-            scores = detection_graph.get_tensor_by_name('detection_scores:0')
-            classes = detection_graph.get_tensor_by_name('detection_classes:0')
-            num_detections = detection_graph.get_tensor_by_name('num_detections:0')
-            (boxes, scores, classes, num_detections) = sess.run(
-                [boxes, scores, classes, num_detections],
-                feed_dict={image_tensor: frame_np_expanded})
-            to_del=()
-            #delete unwanted boxes (too large, non car labels, etc)
-            for i in range(boxes.shape[1]):
-                if((np.abs(boxes[0][i][0]-boxes[0][i][2])*np.abs(boxes[0][i][1]-boxes[0][i][3]) >= upper_size_thres) or 
-                    (scores[0][i] < confidence_drop) or
-                    (classes[0][i] not in [1, 2, 3, 4, 6, 8, 9])):
-                    to_del = to_del + (i,)
-                    num_detections[0] = num_detections[0] - 1
-            boxes = np.delete(boxes, to_del, axis=1)
-            scores = np.delete(scores, to_del, axis=1)
-            classes = np.delete(classes, to_del, axis=1)
-            boxes_t=[] #initiallize transformed bozes storage
-            for box in np.squeeze(boxes, axis=0): # transform detected boxes
-                box = box_trans(box, height, width)
-                boxes_t = boxes_t + [box]
+    
+    # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
+    frame_np_expanded = np.expand_dims(frame_np, axis=0)
+    image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
+    # Each box represents a part of the image where a particular object was detected.
+    boxes = detection_graph.get_tensor_by_name('detection_boxes:0')
+    # Each score represent how level of confidence for each of the objects.
+    # Score is shown on the result image, together with the class label.
+    scores = detection_graph.get_tensor_by_name('detection_scores:0')
+    classes = detection_graph.get_tensor_by_name('detection_classes:0')
+    num_detections = detection_graph.get_tensor_by_name('num_detections:0')
+    (boxes, scores, classes, num_detections) = sess.run(
+        [boxes, scores, classes, num_detections],
+        feed_dict={image_tensor: frame_np_expanded})
+    to_del=()
+    #delete unwanted boxes (too large, non car labels, etc)
+    for i in range(boxes.shape[1]):
+        if((np.abs(boxes[0][i][0]-boxes[0][i][2])*np.abs(boxes[0][i][1]-boxes[0][i][3]) >= upper_size_thres) or 
+            (scores[0][i] < confidence_drop) or
+            (classes[0][i] not in [1, 2, 3, 4, 6, 8, 9])):
+            to_del = to_del + (i,)
+            num_detections[0] = num_detections[0] - 1
+    boxes = np.delete(boxes, to_del, axis=1)
+    scores = np.delete(scores, to_del, axis=1)
+    classes = np.delete(classes, to_del, axis=1)
+    boxes_t=[] #initiallize transformed bozes storage
+    for box in np.squeeze(boxes, axis=0): # transform detected boxes
+        box = box_trans(box, height, width)
+        boxes_t = boxes_t + [box]
                         
-        #visualize detection        
-        vis_util.visualize_boxes_and_labels_on_image_array(
-            write_on,
-            np.squeeze(boxes, axis=0),
-            np.squeeze(classes, axis=0).astype(np.int32),
-            np.squeeze(scores, axis=0),
-            category_index,
-            use_normalized_coordinates=True,
-            max_boxes_to_draw=500,
-            line_thickness=1,
-            min_score_thresh=confidence_drop)
-        to_write = Image.fromarray(write_on)
-        to_write.save('./output/'+file_name+'_output.jpg')
-        target_dict = []
-        for idx, box in enumerate(np.squeeze(boxes, axis=0)):
-            box = box_trans(box, height, width)
-            target_dict += [{"left":box[0], 
-                            "top":box[1], 
-                            "width":box[2], 
-                            "height":box[3], 
-                            "type":category_index[int(np.squeeze(classes, axis=0)[idx])]['name'],
-                            "confidence":float("{0:.3f}".format(np.squeeze(scores, axis=0)[idx]))}]
-        son = {'image':{"name":file_name, "width":width, "height":height,"target":target_dict}}
-        with open('./output/'+file_name+'_output.json', 'w') as outfile:
-            json.dump(son, outfile, sort_keys=False, indent=1)
-        outfile.close()
-
+    #visualize detection        
+    vis_util.visualize_boxes_and_labels_on_image_array(
+        write_on,
+        np.squeeze(boxes, axis=0),
+        np.squeeze(classes, axis=0).astype(np.int32),
+        np.squeeze(scores, axis=0),
+        category_index,
+        use_normalized_coordinates=True,
+        max_boxes_to_draw=500,
+        line_thickness=1,
+        min_score_thresh=confidence_drop)
+    to_write = Image.fromarray(write_on)
+    to_write.save('./output/'+file_name+'_output.jpg')
+    target_dict = []
+    for idx, box in enumerate(np.squeeze(boxes, axis=0)):
+        box = box_trans(box, height, width)
+        target_dict += [{"left":box[0], 
+                        "top":box[1], 
+                        "width":box[2], 
+                        "height":box[3], 
+                        "type":category_index[int(np.squeeze(classes, axis=0)[idx])]['name'],
+                        "confidence":float("{0:.3f}".format(np.squeeze(scores, axis=0)[idx]))}]
+    son = {'image':{"name":file_name, "width":width, "height":height,"target":target_dict}}
+    with open('./output/'+file_name+'_output.json', 'w') as outfile:
+        json.dump(son, outfile, sort_keys=False, indent=1)
+    outfile.close()
