@@ -28,7 +28,11 @@ def download_from_storage(image_url):
 
 def process_image(img_np, file_name):
     #do the analysis and return void
+    start = time.time()
     image_analyzer.analyze(img_np, file_name)
+    end = time.time()
+    runtime = end-start
+    print("Analysis runtime is: {0]".format(runtime))
     bimg_output = open('./output/'+file_name+'_output.jpg', 'rb')
     bjson_output = open('./output/'+file_name+'_output.json', 'rb')
     save_to_storage(bimg_output, file_name+'_output.jpg')
@@ -74,7 +78,11 @@ def clientthread(conn):
         else:
             to_send = "Msg received from Hub"
             conn.sendall(to_send.encode())
+            start = time.time()
             handle_message(bmsg, conn)
+            end = time.time()
+            runtime = end-start
+            print("Msg handling runtime: {0]".format(runtime))
     conn.close()
     print('Connection closed')
     return
