@@ -82,7 +82,7 @@ def clientthread(conn):
             handle_message(bmsg, conn)
             end = time.time()
             runtime = end-start
-            print("Msg handling runtime: {0]".format(runtime))
+            print("Msg handling runtime: {0}".format(runtime))
     conn.close()
     print('Connection closed')
     return
