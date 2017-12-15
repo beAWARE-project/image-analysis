@@ -14,4 +14,4 @@ WORKDIR /usr/src/listener/
 
 ENV PYTHONPATH="/usr/local/lib/python3.5/site-packages/tensorflow/models/:/usr/local/lib/python3.5/site-packages/tensorflow/models/slim:${PYTHONPATH}"
 
-CMD python3 timing_test.py
+CMD python3 image_listener.py
