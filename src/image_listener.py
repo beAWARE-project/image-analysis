@@ -111,6 +111,5 @@ while 1:
      
     #start new thread takes 1st argument as a function name to be run, second is the tuple of arguments to the function.
     start_new_thread(clientthread ,(conn,))
-    break
 
 s.close()
