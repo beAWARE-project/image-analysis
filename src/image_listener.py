@@ -32,7 +32,7 @@ def process_image(img_np, file_name):
     image_analyzer.analyze(img_np, file_name)
     end = time.time()
     runtime = end-start
-    print("Analysis runtime is: {0]".format(runtime))
+    print("Analysis runtime is: {0}".format(runtime))
     bimg_output = open('./output/'+file_name+'_output.jpg', 'rb')
     bjson_output = open('./output/'+file_name+'_output.json', 'rb')
     save_to_storage(bimg_output, file_name+'_output.jpg')
