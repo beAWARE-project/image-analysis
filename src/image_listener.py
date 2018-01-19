@@ -35,7 +35,7 @@ def process_image(img_np, file_name):
     image_analyzer.analyze(img_np, file_name)
     end = time.time()
     runtime = end-start
-    f.write("Image analysis done. Runtime: {0}".format(runtime))
+    f.write("Image analysis done. Runtime: {0}\n".format(runtime))
     start = time.time()
     bimg_output = open('./output/'+file_name+'_output.jpg', 'rb')
     bjson_output = open('./output/'+file_name+'_output.json', 'rb')
@@ -45,7 +45,7 @@ def process_image(img_np, file_name):
     bjson_output.close()
     end = time.time()
     runtime = end-start
-    f.write("Upload complete. Runtime: {0}".format(runtime))
+    f.write("Upload complete. Runtime: {0}\n".format(runtime))
     dict_to_send = {"message":{"img_analyzed":storage_link+file_name+'_output.jpg', "img_analysis":storage_link+file_name+'_output.json'}}
     bjson_links = json.dumps(dict_to_send).encode()
     return bjson_links
@@ -68,7 +68,7 @@ def handle_message(bmsg, conn):
     img_np = download_from_storage(image_url)
     end = time.time()
     runtime = end - start
-    f.write("Download complete. Runtime: {0}".format(runtime))
+    f.write("Download complete. Runtime: {0}\n".format(runtime))
     file_name = mydict['message']['URL'].split(sep='file=')[1].rsplit(sep='.', maxsplit=1)[0]
     bjson_links = process_image(img_np, file_name)
     send_to_certh_hub(bjson_links, conn)
@@ -83,7 +83,7 @@ def clientthread(conn):
     while 1:
         bmsg = conn.recv(1024)
         msg = bmsg.decode()
-        f.write("Hub says: ",msg)
+        f.write("Hub says: "+msg+'\n')
         if(msg=="Msg from IA received"):
             #to_send = "Bye hub!"
             #conn.sendall(to_send.encode())
@@ -95,29 +95,29 @@ def clientthread(conn):
             handle_message(bmsg, conn)
             end = time.time()
             runtime = end - start
-            f.write("Message handling done. Runtime: {0}".format(runtime))
+            f.write("Message handling done. Runtime: {0}\n".format(runtime))
     conn.close()
-    f.write('Connection closed')
-    f.write(time.strftime('%X %x %Z'))
+    f.write('Connection closed\n')
+    f.write(time.strftime('%X %x %Z')+'\n')
     f.close()
     blog = open('log.txt', 'rb')
     save_to_storage(blog, "image-analysis.log")
     return
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-f.write('Socket created')
+f.write('Socket created\n')
  
 #Bind socket to local host and port
 try:
     s.bind((HOST, PORT))
 except socket.error as msg:
-    f.write('Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
+    f.write('Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1] + '\n')
     sys.exit()    
-f.write('Socket bind complete')
+f.write('Socket bind complete\n')
 
 #Start listening on socket
 s.listen(10)
-f.write('Socket now listening')
+f.write('Socket now listening\n')
 f.close()
 
 #now keep talking with the client
@@ -126,7 +126,7 @@ while 1:
     #f.write('Waiting for a new connection...')
     conn, addr = s.accept()
     f = open('log.txt', 'a')
-    f.write('Connected with ' + addr[0] + ':' + str(addr[1]))
+    f.write('Connected with ' + addr[0] + ':' + str(addr[1]) + '\n')
     f.close()
     #start new thread takes 1st argument as a function name to be run, second is the tuple of arguments to the function.
     start_new_thread(clientthread ,(conn,))
