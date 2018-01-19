@@ -41,6 +41,8 @@ def process_image(img_np, file_name):
     bjson_output = open('./output/'+file_name+'_output.json', 'rb')
     save_to_storage(bimg_output, file_name+'_output.jpg')
     save_to_storage(bjson_output, file_name+'_output.json')
+    bimg_output.close()
+    bjson_output.close()
     end = time.time()
     runtime = end-start
     f.write("Upload complete. Runtime: {0}".format(runtime))
@@ -49,10 +51,9 @@ def process_image(img_np, file_name):
     return bjson_links
     
 def save_to_storage(bobj, filename):
-    global f
     r = requests.post(storage_link+filename, bobj)
     if not r.ok:
-        f.write('Didn\'t happen')
+        print('Didn\'t happen')
 
 def send_to_certh_hub(bjson_links, conn):
     conn.send(bjson_links)
