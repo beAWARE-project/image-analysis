@@ -1,6 +1,7 @@
 import socket
 import sys
-from _thread import *
+#from _thread import *
+from threading import Lock, Thread
 import time
 import json
 import urllib.request
@@ -13,7 +14,7 @@ import skvideo.io
 import image_analyzer
 
 #get lock object
-lock = allocate_lock()
+lock = Lock()
 
 #open logger
 f = open('log.txt', 'a')
@@ -81,8 +82,8 @@ def handle_message(bmsg, conn):
 
 #Function for handling connections. This will be used to create threads
 def clientthread(conn):
-    lock.acquire()
     global f
+    lock.acquire()
     f = open('log.txt', 'a')
     while 1:
         bmsg = conn.recv(1024)
@@ -134,6 +135,7 @@ while 1:
     f.write('Connected with ' + addr[0] + ':' + str(addr[1]) + '\n')
     f.close()
     #start new thread takes 1st argument as a function name to be run, second is the tuple of arguments to the function.
-    start_new_thread(clientthread ,(conn,))
+    t1 = Thread(target=clientthread , args=(conn,))
+    t1.start()
 
 s.close()
