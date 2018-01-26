@@ -12,6 +12,9 @@ import requests
 import skvideo.io
 import image_analyzer
 
+#get lock object
+lock = allocate_lock()
+
 #open logger
 f = open('log.txt', 'a')
 
@@ -78,6 +81,7 @@ def handle_message(bmsg, conn):
 
 #Function for handling connections. This will be used to create threads
 def clientthread(conn):
+    lock.acquire()
     global f
     f = open('log.txt', 'a')
     while 1:
@@ -102,6 +106,7 @@ def clientthread(conn):
     f.close()
     blog = open('log.txt', 'rb')
     save_to_storage(blog, "image-analysis.log")
+    lock.release()
     return
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
