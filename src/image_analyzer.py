@@ -60,7 +60,7 @@ def box_trans(box, height, width): #transform from (ymin, xmin, ymax, xmax)[norm
     box = [box[1], box[0], abs(box[3]-box[1]), abs(box[2]-box[0])]
     return box
 
-def analyze(img_np, file_name):
+def analyze(img_np, file_name, timestamp):
     #LOAD IMAGE
     frame_np = img_np
     write_on = frame_np.copy()
@@ -111,14 +111,16 @@ def analyze(img_np, file_name):
     to_write.save('./output/'+file_name+'_output.jpg')
     target_dict = []
     for idx, box in enumerate(np.squeeze(boxes, axis=0)):
+        risk = np.random.random_sample()
         box = box_trans(box, height, width)
         target_dict += [{"left":box[0], 
                         "top":box[1], 
                         "width":box[2], 
-                        "height":box[3], 
+                        "height":box[3],
+                        "risk":risk,
                         "type":category_index[int(np.squeeze(classes, axis=0)[idx])]['name'],
                         "confidence":float("{0:.3f}".format(np.squeeze(scores, axis=0)[idx]))}]
-    son = {'image':{"name":file_name, "width":width, "height":height,"target":target_dict}}
+    son = {'image':{"name":file_name, "width":width, "height":height, "timestamp":timestamp, "crisis_type":"flood", "crisis_level":"high", "target":target_dict}}
     with open('./output/'+file_name+'_output.json', 'w') as outfile:
         json.dump(son, outfile, sort_keys=False, indent=1)
     outfile.close()
