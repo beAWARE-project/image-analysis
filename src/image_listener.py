@@ -65,7 +65,9 @@ def handle_message(bmsg, conn):
     msg = bmsg.decode()
     mydict = json.loads(msg)
     image_url = mydict['message']['URL']
-    timestamp = mydict['message']['startTimeUTC']
+    #TODO: insert real timestamp here
+    #timestamp = mydict['message']['startTimeUTC']
+    timestamp = "2017-10-13 09:12:42.519408"
     start = time.time()
     img_np = download_from_storage(image_url)
     end = time.time()
