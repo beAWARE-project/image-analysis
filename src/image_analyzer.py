@@ -97,7 +97,7 @@ def analyze(img_np, file_name, timestamp):
     K.clear_session()
 
     #with detection_graph.as_default():
-    sess =  tf.Session(graph=detection_graph, config=config)
+    sess =  tf.Session(graph=detection_graph)
     
     #LOAD IMAGE
     frame_np = img_np
@@ -158,7 +158,7 @@ def analyze(img_np, file_name, timestamp):
                         "risk":risk,
                         "type":category_index[int(np.squeeze(classes, axis=0)[idx])]['name'],
                         "confidence":float("{0:.3f}".format(np.squeeze(scores, axis=0)[idx]))}]
-    son = {'image':{"name":file_name, "width":width, "height":height, "timestamp":timestamp, "crisis_type":crisis_prediction[0][0], "crisis_level":"high", "target":target_dict}}
+    son = {'image':{"name":file_name, "width":width, "height":height, "timestamp":timestamp, "crisis_type":crisis_prediction[0][0], "crisis_level":"severe", "target":target_dict}}
     with open('./output/'+file_name+'_output.json', 'w') as outfile:
         json.dump(son, outfile, sort_keys=False, indent=1)
     outfile.close()
