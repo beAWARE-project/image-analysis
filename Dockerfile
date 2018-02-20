@@ -9,6 +9,8 @@ COPY src/model/label_map.pbtxt /usr/src/listener/model/
 WORKDIR /usr/src/listener/model/
 
 RUN wget -O frozen_inference_graph.pb http://object-store-app.eu-gb.mybluemix.net/objectStorage?file=frozen_inference_graph.pb
+RUN wget -O vgg_places https://www.dropbox.com/s/53xg37xytrpp8rp/vgg_places?dl=0
+
 WORKDIR /usr/src/
 WORKDIR /usr/src/listener/
 
