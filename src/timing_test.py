@@ -8,6 +8,8 @@ import numpy as np
 import skvideo.io
 import requests
 
+#adding dummy trigger for jenkins
+
 HOST = ''   # Symbolic name meaning all available interfaces
 PORT = 9999 # Arbitrary non-privileged port
 
