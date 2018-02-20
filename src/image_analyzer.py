@@ -25,6 +25,35 @@ from tqdm import tqdm
 from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as vis_util
 import json
+from keras.models import load_model
+from keras.applications.imagenet_utils import preprocess_input
+from keras.preprocessing import image
+from keras import backend as K
+import gc
+
+# Path to frozen Keras model
+PATH_TO_CRISIS_MODEL = './model/vgg_places'
+
+# Path to json for decoding predictions
+CRISIS_INDEX_PATH = './model/crisis_index.json'
+
+def decode_predictions(preds):
+    class_index = json.load(open(CRISIS_INDEX_PATH))
+    sorted_preds = np.argsort(-preds[0])
+    results = []
+    for idx in sorted_preds:
+        results += [[class_index[str(idx)], preds[0][idx]]]
+    return results
+
+def preprocess_image(img_np):
+    img = image.array_to_img(img_np)
+    img = img.resize(size=(224,224))
+    x = image.img_to_array(img)
+    x = np.expand_dims(x, axis=0)
+    #x = np.transpose(x, (0, 1, 2, 3))
+    #x = x[::-1, :, :, :]
+    x = preprocess_input(x, mode='caffe')
+    return x
 
 # Path to frozen detection graph. This is the actual model that is used for the object detection.
 PATH_TO_CKPT = './model/frozen_inference_graph.pb'
@@ -40,13 +69,13 @@ with detection_graph.as_default():
         serialized_graph = fid.read()
         od_graph_def.ParseFromString(serialized_graph)
         tf.import_graph_def(od_graph_def, name='')
+
+#config = tf.ConfigProto()
+#config.gpu_options.allow_growth=True
         
 label_map = label_map_util.load_labelmap(PATH_TO_LABELS)
 categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES, use_display_name=True)
 category_index = label_map_util.create_category_index(categories)
-
-with detection_graph.as_default():
-    sess =  tf.Session(graph=detection_graph)
 
 print('Analyzer imported')
 
@@ -61,6 +90,15 @@ def box_trans(box, height, width): #transform from (ymin, xmin, ymax, xmax)[norm
     return box
 
 def analyze(img_np, file_name, timestamp):
+
+    crisis_model = load_model(PATH_TO_CRISIS_MODEL)    
+    preds = crisis_model.predict(preprocess_image(img_np))
+    crisis_prediction = decode_predictions(preds)
+    K.clear_session()
+
+    #with detection_graph.as_default():
+    sess =  tf.Session(graph=detection_graph, config=config)
+    
     #LOAD IMAGE
     frame_np = img_np
     write_on = frame_np.copy()
@@ -120,7 +158,8 @@ def analyze(img_np, file_name, timestamp):
                         "risk":risk,
                         "type":category_index[int(np.squeeze(classes, axis=0)[idx])]['name'],
                         "confidence":float("{0:.3f}".format(np.squeeze(scores, axis=0)[idx]))}]
-    son = {'image':{"name":file_name, "width":width, "height":height, "timestamp":timestamp, "crisis_type":"flood", "crisis_level":"high", "target":target_dict}}
+    son = {'image':{"name":file_name, "width":width, "height":height, "timestamp":timestamp, "crisis_type":crisis_prediction[0][0], "crisis_level":"high", "target":target_dict}}
     with open('./output/'+file_name+'_output.json', 'w') as outfile:
         json.dump(son, outfile, sort_keys=False, indent=1)
     outfile.close()
+    sess.close()
