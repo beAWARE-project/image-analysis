@@ -143,6 +143,8 @@ while 1:
     f = open('log.txt', 'a')
     f.write('Connected with ' + addr[0] + ':' + str(addr[1]) + '\n')
     f.close()
+    blog = open('log.txt', 'rb')
+    save_to_storage(blog, "image-analysis.log")
     #start new thread takes 1st argument as a function name to be run, second is the tuple of arguments to the function.
     t += [Thread(target=clientthread , args=(conn,))]
     t[-1].start()
