@@ -73,7 +73,11 @@ def handle_message(bmsg, conn):
     end = time.time()
     runtime_d = end - start
     #f.write("Download complete. Runtime: {0}\n".format(runtime))
-    file_name = mydict['message']['URL'].split(sep='file=')[1].rsplit(sep='.', maxsplit=1)[0]
+    URL_str = mydict['message']['URL']
+    if "file=" in URL_str:
+        file_name = mydict['message']['URL'].split(sep='file=')[-1].rsplit(sep='.', maxsplit=1)[0]
+    else:
+        file_name = mydict['message']['URL'].split(sep='object-store/')[-1].rsplit(sep='.', maxsplit=1)[0]
     bjson_links, runtime_a, runtime_u = process_image(img_np, file_name, timestamp)
     send_to_certh_hub(bjson_links, conn)
     os.remove('./output/'+file_name+'_output.jpg')
